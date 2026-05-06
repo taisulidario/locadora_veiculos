@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locadora — Visão Geral</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --white: #ffffff;
+    --border: #e4e7ed;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --light: #f0f2f5;
+    --blue: #2563eb;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --blue-soft: #eff6ff;
+    --green-soft: #ecfdf5;
+    --amber-soft: #fffbeb;
+    --red-soft: #fef2f2;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; }
+
+  /* NAV */
+  nav {
+    background:var(--white);
+    border-bottom:1px solid var(--border);
+    padding:0 40px;
+    display:flex;
+    align-items:center;
+    gap:0;
+    height:60px;
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  }
+  .nav-brand {
+    font-family:'Playfair Display',serif;
+    font-size:18px;
+    color:var(--text);
+    margin-right:40px;
+    letter-spacing:-0.3px;
+  }
+  .nav-brand span { color:var(--blue); }
+  .nav-link {
+    padding:0 18px;
+    height:60px;
+    display:flex;
+    align-items:center;
+    font-size:13px;
+    font-weight:500;
+    color:var(--muted);
+    text-decoration:none;
+    border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .nav-link:hover { color:var(--text); }
+  .nav-link.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+  /* LAYOUT */
+  main { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom:28px; }
+  .page-title {
+    font-family:'Playfair Display',serif;
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-0.5px;
+    color:var(--text);
+  }
+  .page-sub { font-size:13px; color:var(--muted); margin-top:4px; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:24px;
+  }
+  @media(max-width:768px){ .kpi-grid{grid-template-columns:1fr 1fr;} }
+
+  .kpi-card {
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .kpi-icon-wrap {
+    width:38px; height:38px;
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    margin-bottom:6px;
+  }
+  .kpi-label { font-size:12px; font-weight:500; color:var(--muted); }
+  .kpi-value { font-size:26px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
+  .kpi-note { font-size:11px; color:var(--muted); margin-top:2px; }
+
+  .kpi-blue .kpi-icon-wrap { background:var(--blue-soft); }
+  .kpi-green .kpi-icon-wrap { background:var(--green-soft); }
+  .kpi-amber .kpi-icon-wrap { background:var(--amber-soft); }
+  .kpi-red .kpi-icon-wrap { background:var(--red-soft); }
+  .kpi-blue .kpi-value { color:var(--blue); }
+  .kpi-green .kpi-value { color:var(--green); }
+  .kpi-amber .kpi-value { color:var(--amber); }
+  .kpi-red .kpi-value { color:var(--red); }
+
+  /* CHART CARDS */
+  .grid-2 {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-bottom:24px;
+  }
+  @media(max-width:768px){ .grid-2{grid-template-columns:1fr;} }
+
+  .card {
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px 24px;
+  }
+  .card-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .card-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+
+  /* STATUS PILLS */
+  .status-row {
+    display:flex;
+    gap:12px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+  }
+  .status-pill {
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:100px;
+    padding:8px 20px;
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .dot { width:8px;height:8px;border-radius:50%; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Locadora<span>.</span></span>
+  <a href="index.html" class="nav-link active">Visão Geral</a>
+  <a href="veiculos.html" class="nav-link">Veículos</a>
+  <a href="clientes.html" class="nav-link">Clientes</a>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1 class="page-title">Visão Geral</h1>
+    <p class="page-sub">Resumo executivo · Frota & Faturamento</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon-wrap">💰</div>
+      <div class="kpi-label">Faturamento Total</div>
+      <div class="kpi-value">R$81.434</div>
+      <div class="kpi-note">R$ 2,00 por km rodado</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon-wrap">🛣️</div>
+      <div class="kpi-label">KM Total Percorrido</div>
+      <div class="kpi-value">40.717</div>
+      <div class="kpi-note">Média de 1.357 km / veículo</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon-wrap">🚗</div>
+      <div class="kpi-label">Veículos na Frota</div>
+      <div class="kpi-value">30</div>
+      <div class="kpi-note">23 ativos · 7 inativos</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-icon-wrap">👤</div>
+      <div class="kpi-label">Clientes Cadastrados</div>
+      <div class="kpi-value">27</div>
+      <div class="kpi-note">3 cidades · Osasco, SP, Barueri</div>
+    </div>
+  </div>
+
+  <!-- Status pills -->
+  <div class="status-row">
+    <div class="status-pill"><div class="dot" style="background:#059669"></div>23 Veículos Ativos</div>
+    <div class="status-pill"><div class="dot" style="background:#dc2626"></div>7 Veículos Inativos (23%)</div>
+    <div class="status-pill"><div class="dot" style="background:#2563eb"></div>Barueri lidera faturamento</div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Faturamento por Cidade</div>
+      <div class="card-sub">Distribuição geográfica da receita</div>
+      <canvas id="chartCidade" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">KM Percorrido por Ano</div>
+      <div class="card-sub">Evolução histórica da quilometragem</div>
+      <canvas id="chartAno" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Status da Frota</div>
+      <div class="card-sub">Veículos ativos vs inativos</div>
+      <canvas id="chartStatus" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Faturamento por Marca</div>
+      <div class="card-sub">Top marcas por receita gerada</div>
+      <canvas id="chartMarca" height="200"></canvas>
+    </div>
+  </div>
+</main>
+
+<script>
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6b7280';
+const grid = 'rgba(0,0,0,0.05)';
+
+// Cidade
+new Chart(document.getElementById('chartCidade'),{
+  type:'bar',
+  data:{
+    labels:['Barueri','São Paulo','Osasco'],
+    datasets:[{
+      data:[36826,26766,15026],
+      backgroundColor:['#2563eb','#7c3aed','#059669'],
+      borderRadius:8, borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#374151',font:{weight:'600'}}},
+      y:{grid:{color:grid},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}
+    }
+  }
+});
+
+// Ano
+new Chart(document.getElementById('chartAno'),{
+  type:'line',
+  data:{
+    labels:['2014','2015','2016','2017','2019'],
+    datasets:[{
+      data:[1937,17436,9677,1659,10008],
+      borderColor:'#2563eb',
+      backgroundColor:'rgba(37,99,235,0.08)',
+      fill:true, tension:0.4,
+      pointBackgroundColor:'#2563eb', pointRadius:5, borderWidth:2.5
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString('pt-BR')+' km'}}},
+    scales:{
+      x:{grid:{display:false}},
+      y:{grid:{color:grid},ticks:{callback:v=>(v/1000).toFixed(0)+'k km'}}
+    }
+  }
+});
+
+// Status
+new Chart(document.getElementById('chartStatus'),{
+  type:'doughnut',
+  data:{
+    labels:['Ativos','Inativos'],
+    datasets:[{data:[23,7],backgroundColor:['#059669','#dc2626'],borderWidth:0,hoverOffset:6}]
+  },
+  options:{
+    cutout:'65%',
+    plugins:{
+      legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:10}},
+      tooltip:{callbacks:{label:c=>' '+c.label+': '+c.raw+' veículos'}}
+    }
+  }
+});
+
+// Marca
+new Chart(document.getElementById('chartMarca'),{
+  type:'bar',
+  data:{
+    labels:['VW Up','Land Rover','Toyota Hilux','VW Gol','Renault Logan','Fiat Siena','Ford Focus'],
+    datasets:[{
+      data:[7396,3352,2656,2638,2500,1794,1724],
+      backgroundColor:['#2563eb','#7c3aed','#059669','#0891b2','#d97706','#dc2626','#4f46e5'],
+      borderRadius:8, borderSkipped:false
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},
+    scales:{
+      x:{grid:{color:grid},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},
+      y:{grid:{display:false},ticks:{font:{size:11}}}
+    }
+  }
+});
+</script>
+</body>
+</html>

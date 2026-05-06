@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locadora — Veículos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f5f6f8; --white:#ffffff; --border:#e4e7ed; --text:#1a1d23;
+    --muted:#6b7280; --blue:#2563eb; --green:#059669; --amber:#d97706;
+    --red:#dc2626; --blue-soft:#eff6ff; --green-soft:#ecfdf5;
+    --amber-soft:#fffbeb; --red-soft:#fef2f2;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; }
+
+  nav {
+    background:var(--white); border-bottom:1px solid var(--border);
+    padding:0 40px; display:flex; align-items:center; height:60px;
+    position:sticky; top:0; z-index:100; box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  }
+  .nav-brand { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); margin-right:40px; }
+  .nav-brand span { color:var(--blue); }
+  .nav-link {
+    padding:0 18px; height:60px; display:flex; align-items:center;
+    font-size:13px; font-weight:500; color:var(--muted); text-decoration:none;
+    border-bottom:2px solid transparent; transition:color .15s,border-color .15s;
+  }
+  .nav-link:hover { color:var(--text); }
+  .nav-link.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+  main { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
+
+  .page-header { margin-bottom:28px; }
+  .page-title { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; letter-spacing:-0.5px; }
+  .page-sub { font-size:13px; color:var(--muted); margin-top:4px; }
+
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  @media(max-width:768px){ .kpi-grid{grid-template-columns:1fr 1fr;} }
+
+  .kpi-card {
+    background:var(--white); border:1px solid var(--border); border-radius:12px;
+    padding:18px 20px;
+  }
+  .kpi-label { font-size:12px; font-weight:500; color:var(--muted); margin-bottom:6px; }
+  .kpi-value { font-size:24px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
+  .kpi-note { font-size:11px; color:var(--muted); margin-top:4px; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+  @media(max-width:768px){ .grid-2{grid-template-columns:1fr;} }
+
+  .card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:22px 24px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:2px; }
+  .card-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
+
+  /* TABLE */
+  .table-wrap { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .table-top { padding:20px 24px 16px; border-bottom:1px solid var(--border); }
+
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    background:#f8f9fb; font-size:11px; font-weight:600; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.8px; padding:12px 20px; text-align:left;
+    border-bottom:1px solid var(--border);
+  }
+  tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:#f8f9fb; }
+  tbody td { padding:13px 20px; vertical-align:middle; }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:600; padding:3px 10px;
+    border-radius:100px;
+  }
+  .badge-green { background:#dcfce7; color:#16a34a; }
+  .badge-red { background:#fee2e2; color:#dc2626; }
+  .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  .placa {
+    font-family:monospace; font-size:12px; background:#f1f5f9;
+    padding:3px 8px; border-radius:6px; letter-spacing:1px; color:#374151;
+  }
+
+  .bar-cell { display:flex; align-items:center; gap:8px; }
+  .mini-bar { flex:1; height:5px; background:#e5e7eb; border-radius:100px; overflow:hidden; min-width:50px; }
+  .mini-fill { height:100%; border-radius:100px; background:var(--blue); }
+
+  .color-dot {
+    width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Locadora<span>.</span></span>
+  <a href="index.html" class="nav-link">Visão Geral</a>
+  <a href="veiculos.html" class="nav-link active">Veículos</a>
+  <a href="clientes.html" class="nav-link">Clientes</a>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1 class="page-title">Veículos</h1>
+    <p class="page-sub">Análise da frota · Marcas, modelos e quilometragem</p>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total de Veículos</div>
+      <div class="kpi-value" style="color:var(--blue)">30</div>
+      <div class="kpi-note">registros na base</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ativos</div>
+      <div class="kpi-value" style="color:var(--green)">23</div>
+      <div class="kpi-note">77% da frota operando</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Inativos</div>
+      <div class="kpi-value" style="color:var(--red)">7</div>
+      <div class="kpi-note">23% fora de operação</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Maior KM Individual</div>
+      <div class="kpi-value" style="color:var(--amber)">9.874</div>
+      <div class="kpi-note">cliente Daniele</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Veículos por Marca</div>
+      <div class="card-sub">Quantidade de veículos registrados por fabricante</div>
+      <canvas id="chartMarcaCount" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">KM Total por Marca</div>
+      <div class="card-sub">Quilometragem acumulada por fabricante</div>
+      <canvas id="chartKmMarca" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-top">
+      <div class="card-title">Frota Completa</div>
+      <div class="card-sub" style="margin-bottom:0">Todos os veículos cadastrados no sistema</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Placa</th>
+          <th>Marca / Modelo</th>
+          <th>Ano</th>
+          <th>KM Percorrido</th>
+          <th>Valor/km</th>
+          <th>Faturamento</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6b7280';
+const grid = 'rgba(0,0,0,0.05)';
+
+const veiculos = [
+  {placa:'ERT-2365',marca:'Toyota Hilux',ano:2015,km:489,fat:978,status:1},
+  {placa:'SFS-4458',marca:'Toyota Etios',ano:2015,km:658,fat:1316,status:1},
+  {placa:'NBF-1265',marca:'Volkswagen Gol',ano:2015,km:623,fat:1246,status:1},
+  {placa:'ETR-8989',marca:'Toyota Hilux',ano:2015,km:185,fat:370,status:1},
+  {placa:'GFW-5852',marca:'Renault Logan',ano:2016,km:1250,fat:2500,status:1},
+  {placa:'TWE-9632',marca:'Volkswagen Up',ano:2016,km:3698,fat:7396,status:1},
+  {placa:'VAW-8541',marca:'Fiat Siena',ano:2017,km:12,fat:24,status:1},
+  {placa:'TGB-6333',marca:'Renault Sandero',ano:2017,km:698,fat:1396,status:1},
+  {placa:'NMH-9856',marca:'Ford Focus',ano:2017,km:862,fat:1724,status:1},
+  {placa:'GTY-9652',marca:'Ford Fiesta',ano:2017,km:87,fat:174,status:1},
+  {placa:'HEW-9853',marca:'Land Rover Evoque',ano:2016,km:695,fat:1390,status:1},
+  {placa:'HOA-9689',marca:'Fiat Siena',ano:2016,km:885,fat:1770,status:1},
+  {placa:'TYU-6325',marca:'Chevrolet Corsa',ano:2014,km:587,fat:1174,status:1},
+  {placa:'RTH-8782',marca:'Volkswagen Gol',ano:2014,km:696,fat:1392,status:1},
+  {placa:'ECP-5287',marca:'Toyota Hilux',ano:2014,km:654,fat:1308,status:1},
+  {placa:'EWQ-3258',marca:'Land Rover Evoque',ano:2019,km:981,fat:1962,status:1},
+  {placa:'—',marca:'Volkswagen Fusca',ano:2019,km:900,fat:1800,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:96,fat:192,status:1},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:985,fat:1970,status:1},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:2389,fat:4778,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:658,fat:1316,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:5642,fat:11284,status:1},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:98,fat:196,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:5287,fat:10574,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:98,fat:196,status:0},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:9874,fat:19748,status:1},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:222,fat:444,status:1},
+  {placa:'—',marca:'Chevrolet Agile',ano:2019,km:450,fat:900,status:1},
+  {placa:'—',marca:'Kia Soul',ano:2019,km:300,fat:600,status:1},
+  {placa:'—',marca:'Não Registrada',ano:2019,km:658,fat:1316,status:0},
+];
+
+// Chart 1: count por marca (excl. não registrada)
+const marcaCount = {};
+veiculos.forEach(v=>{ if(v.marca!=='Não Registrada') marcaCount[v.marca]=(marcaCount[v.marca]||0)+1; });
+const mcLabels=Object.keys(marcaCount).sort((a,b)=>marcaCount[b]-marcaCount[a]);
+const colors=['#2563eb','#7c3aed','#059669','#0891b2','#d97706','#dc2626','#4f46e5','#0d9488','#b45309','#9333ea'];
+
+new Chart(document.getElementById('chartMarcaCount'),{
+  type:'doughnut',
+  data:{
+    labels:mcLabels,
+    datasets:[{data:mcLabels.map(m=>marcaCount[m]),backgroundColor:colors,borderWidth:2,borderColor:'#fff',hoverOffset:4}]
+  },
+  options:{
+    cutout:'60%',
+    plugins:{
+      legend:{position:'right',labels:{padding:14,usePointStyle:true,pointStyleWidth:8,font:{size:11}}}
+    }
+  }
+});
+
+// Chart 2: km por marca
+const marcaKm={};
+veiculos.forEach(v=>{ if(v.marca!=='Não Registrada') marcaKm[v.marca]=(marcaKm[v.marca]||0)+v.km; });
+const mkLabels=Object.keys(marcaKm).sort((a,b)=>marcaKm[b]-marcaKm[a]).slice(0,8);
+
+new Chart(document.getElementById('chartKmMarca'),{
+  type:'bar',
+  data:{
+    labels:mkLabels,
+    datasets:[{data:mkLabels.map(m=>marcaKm[m]),backgroundColor:colors,borderRadius:7,borderSkipped:false}]
+  },
+  options:{
+    indexAxis:'y',responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString('pt-BR')+' km'}}},
+    scales:{
+      x:{grid:{color:grid},ticks:{callback:v=>v.toLocaleString('pt-BR')}},
+      y:{grid:{display:false},ticks:{font:{size:11}}}
+    }
+  }
+});
+
+// Table
+const maxKm=Math.max(...veiculos.map(v=>v.km));
+const tbody=document.getElementById('tableBody');
+[...veiculos].sort((a,b)=>b.km-a.km).forEach(v=>{
+  tbody.innerHTML+=`<tr>
+    <td><span class="placa">${v.placa}</span></td>
+    <td style="font-weight:600">${v.marca}</td>
+    <td style="color:var(--muted)">${v.ano}</td>
+    <td>
+      <div class="bar-cell">
+        <span style="font-size:13px;font-weight:500;min-width:50px">${v.km.toLocaleString('pt-BR')}</span>
+        <div class="mini-bar"><div class="mini-fill" style="width:${Math.round((v.km/maxKm)*100)}%"></div></div>
+      </div>
+    </td>
+    <td style="color:var(--muted)">R$ 2,00</td>
+    <td style="font-weight:600;color:var(--blue)">R$ ${v.fat.toLocaleString('pt-BR')}</td>
+    <td>${v.status===1?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>'}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>
