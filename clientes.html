@@ -3,186 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Locadora — Clientes</title>
+<title>DriveMax — Clientes</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#f5f6f8; --white:#ffffff; --border:#e4e7ed; --text:#1a1d23;
-    --muted:#6b7280; --blue:#2563eb; --green:#059669; --amber:#d97706;
-    --red:#dc2626; --purple:#7c3aed;
+    --bg: #f2f3f5;
+    --surface: #ffffff;
+    --surface2: #f8f9fb;
+    --border: #e2e5ea;
+    --text: #111318;
+    --muted: #6b7585;
+    --subtle: #9aa0ad;
+    --navy: #0d1b2a;
+    --gold: #c8943a;
+    --gold-light: #f5e6cf;
+    --teal: #0e7490;
+    --teal-light: #e0f2fe;
+    --crimson: #c0392b;
+    --crimson-light: #fde8e6;
+    --sage: #2d7a5e;
+    --sage-light: #d1f0e5;
+    --radius: 14px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; min-height:100vh; }
 
-  nav {
-    background:var(--white); border-bottom:1px solid var(--border);
-    padding:0 40px; display:flex; align-items:center; height:60px;
-    position:sticky; top:0; z-index:100; box-shadow:0 1px 3px rgba(0,0,0,0.06);
-  }
-  .nav-brand { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); margin-right:40px; }
-  .nav-brand span { color:var(--blue); }
-  .nav-link {
-    padding:0 18px; height:60px; display:flex; align-items:center;
-    font-size:13px; font-weight:500; color:var(--muted); text-decoration:none;
-    border-bottom:2px solid transparent; transition:color .15s,border-color .15s;
-  }
-  .nav-link:hover { color:var(--text); }
-  .nav-link.active { color:var(--blue); border-bottom-color:var(--blue); }
+  .layout { display:flex; min-height:100vh; }
+  .sidebar { width:230px; background:var(--navy); display:flex; flex-direction:column; position:sticky; top:0; height:100vh; flex-shrink:0; }
+  .sidebar-brand { padding:28px 24px 20px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px; }
+  .brand-icon { width:36px; height:36px; background:var(--gold); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .brand-name { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+  .brand-name span { color:var(--gold); }
+  .sidebar-section { padding:20px 14px 6px; font-size:10px; font-weight:600; color:rgba(255,255,255,0.3); letter-spacing:1.2px; text-transform:uppercase; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:11px 14px; margin:2px 10px; border-radius:10px; font-size:13.5px; font-weight:500; color:rgba(255,255,255,0.55); text-decoration:none; transition:all .18s; }
+  .nav-item:hover { background:rgba(255,255,255,0.07); color:#fff; }
+  .nav-item.active { background:rgba(200,148,58,0.18); color:var(--gold); }
+  .nav-item .icon { font-size:16px; width:20px; text-align:center; }
+  .sidebar-footer { margin-top:auto; padding:20px 16px; border-top:1px solid rgba(255,255,255,0.08); font-size:11px; color:rgba(255,255,255,0.3); text-align:center; }
 
-  main { max-width:1200px; margin:0 auto; padding:32px 24px 64px; }
+  .main { flex:1; overflow:hidden; }
+  .topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+  .topbar-left { display:flex; flex-direction:column; }
+  .topbar-title { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; letter-spacing:-0.3px; }
+  .topbar-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+  .badge-period { background:var(--teal-light); color:var(--teal); font-size:11px; font-weight:600; padding:5px 12px; border-radius:100px; }
+  .content { padding:28px 32px 60px; }
 
-  .page-header { margin-bottom:28px; }
-  .page-title { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; letter-spacing:-0.5px; }
-  .page-sub { font-size:13px; color:var(--muted); margin-top:4px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; position:relative; overflow:hidden; transition:box-shadow .2s; }
+  .kpi-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.07); }
+  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .kpi-navy::before { background:var(--navy); }
+  .kpi-gold::before { background:var(--gold); }
+  .kpi-teal::before { background:var(--teal); }
+  .kpi-sage::before { background:var(--sage); }
+  .kpi-crimson::before { background:var(--crimson); }
+  .kpi-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
+  .kpi-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .kpi-navy .kpi-icon { background:rgba(13,27,42,0.08); }
+  .kpi-gold .kpi-icon { background:var(--gold-light); }
+  .kpi-teal .kpi-icon { background:var(--teal-light); }
+  .kpi-sage .kpi-icon { background:var(--sage-light); }
+  .kpi-crimson .kpi-icon { background:var(--crimson-light); }
+  .kpi-label { font-size:11.5px; font-weight:500; color:var(--muted); margin-bottom:5px; }
+  .kpi-value { font-size:27px; font-weight:700; letter-spacing:-1px; line-height:1; }
+  .kpi-navy .kpi-value { color:var(--navy); }
+  .kpi-gold .kpi-value { color:var(--gold); }
+  .kpi-teal .kpi-value { color:var(--teal); }
+  .kpi-sage .kpi-value { color:var(--sage); }
+  .kpi-crimson .kpi-value { color:var(--crimson); }
+  .kpi-note { font-size:11px; color:var(--subtle); margin-top:5px; }
 
-  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-  @media(max-width:768px){ .kpi-grid{grid-template-columns:1fr 1fr;} }
+  .stat-pills { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .stat-pill { background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:7px 16px; font-size:12.5px; font-weight:500; display:flex; align-items:center; gap:7px; }
+  .pill-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 
-  .kpi-card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
-  .kpi-label { font-size:12px; font-weight:500; color:var(--muted); margin-bottom:6px; }
-  .kpi-value { font-size:24px; font-weight:700; letter-spacing:-0.5px; line-height:1; }
-  .kpi-note { font-size:11px; color:var(--muted); margin-top:4px; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; }
+  .card-header { margin-bottom:18px; }
+  .card-title { font-size:14px; font-weight:700; color:var(--text); }
+  .card-sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
 
-  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-  @media(max-width:768px){ .grid-2{grid-template-columns:1fr;} }
-
-  .card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:22px 24px; }
-  .card-title { font-size:14px; font-weight:700; margin-bottom:2px; }
-  .card-sub { font-size:12px; color:var(--muted); margin-bottom:20px; }
-
-  /* TABLE */
-  .table-wrap { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px; }
-  .table-top { padding:20px 24px 16px; border-bottom:1px solid var(--border); }
-
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:16px; }
+  .table-header { padding:18px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .table-count { font-size:12px; background:var(--teal-light); color:var(--teal); padding:3px 10px; border-radius:100px; font-weight:600; }
   table { width:100%; border-collapse:collapse; }
-  thead th {
-    background:#f8f9fb; font-size:11px; font-weight:600; color:var(--muted);
-    text-transform:uppercase; letter-spacing:0.8px; padding:12px 20px; text-align:left;
-    border-bottom:1px solid var(--border);
-  }
-  tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+  thead th { background:var(--surface2); font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.7px; padding:11px 18px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+  tbody tr { border-bottom:1px solid #f0f2f5; transition:background .12s; }
   tbody tr:last-child { border-bottom:none; }
   tbody tr:hover { background:#f8f9fb; }
-  tbody td { padding:13px 20px; vertical-align:middle; }
+  tbody td { padding:12px 18px; vertical-align:middle; font-size:13px; }
 
-  .badge {
-    display:inline-flex; align-items:center; gap:5px;
-    font-size:11px; font-weight:600; padding:3px 10px; border-radius:100px;
-  }
-  .badge-green { background:#dcfce7; color:#16a34a; }
-  .badge-red { background:#fee2e2; color:#dc2626; }
+  .badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:100px; }
   .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
-
-  .cidade-tag {
-    display:inline-block; font-size:11px; font-weight:600;
-    padding:2px 9px; border-radius:6px;
-  }
-  .cidade-osasco { background:#eff6ff; color:#2563eb; }
-  .cidade-sp { background:#f5f3ff; color:#7c3aed; }
-  .cidade-barueri { background:#ecfdf5; color:#059669; }
-
+  .badge-green { background:#d1fae5; color:#059669; }
+  .badge-red { background:#fee2e2; color:#dc2626; }
+  .city-tag { font-size:11px; font-weight:600; padding:2px 9px; border-radius:6px; display:inline-block; }
+  .city-barueri { background:#e0f2fe; color:#0e7490; }
+  .city-sp { background:#f3e8ff; color:#7c3aed; }
+  .city-osasco { background:#fef3c7; color:#92400e; }
   .rank { width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:#f1f5f9;color:#374151; }
-  .rank-1 { background:#fef3c7;color:#d97706; }
+  .rank-1 { background:#fef3c7;color:#b45309; }
   .rank-2 { background:#f1f5f9;color:#64748b; }
-  .rank-3 { background:#fef3c7;color:#92400e;background:#fff0e6; }
-
+  .rank-3 { background:#fff0e6;color:#92400e; }
   .bar-cell { display:flex; align-items:center; gap:8px; }
-  .mini-bar { flex:1; height:5px; background:#e5e7eb; border-radius:100px; overflow:hidden; min-width:50px; }
-  .mini-fill-blue { height:100%;border-radius:100px;background:var(--blue); }
-  .mini-fill-green { height:100%;border-radius:100px;background:var(--green); }
-
-  .avatar {
-    width:32px;height:32px;border-radius:50%;background:var(--blue);
-    display:inline-flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0;
-    vertical-align:middle;
-  }
+  .mini-bar { flex:1; height:4px; background:#e9eaec; border-radius:100px; overflow:hidden; min-width:50px; }
+  .mini-fill { height:100%; border-radius:100px; }
+  .avatar { width:32px;height:32px;border-radius:50%;background:var(--teal);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0; }
   .name-cell { display:flex;align-items:center; }
+
+  @media(max-width:1100px){ .kpi-grid,.grid-2{grid-template-columns:1fr 1fr;} }
+  @media(max-width:780px){ .layout{display:block}.sidebar{position:relative;width:100%;height:auto}.content{padding:20px}.topbar{padding:0 20px}.kpi-grid,.grid-2{grid-template-columns:1fr}.table-wrap{overflow-x:auto} }
 </style>
 </head>
 <body>
 
-<nav>
-  <span class="nav-brand">Locadora<span>.</span></span>
-  <a href="index.html" class="nav-link">Visão Geral</a>
-  <a href="veiculos.html" class="nav-link">Veículos</a>
-  <a href="clientes.html" class="nav-link active">Clientes</a>
-</nav>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🚘</div>
+      <div class="brand-name">Drive<span>Max</span></div>
+    </div>
+    <div class="sidebar-section">Principal</div>
+    <a href="index.html" class="nav-item"><span class="icon">📊</span> Visão Geral</a>
+    <a href="veiculos.html" class="nav-item"><span class="icon">🚗</span> Veículos</a>
+    <a href="clientes.html" class="nav-item active"><span class="icon">👤</span> Clientes</a>
+    <div class="sidebar-section">Relatórios</div>
+    <a href="#" class="nav-item"><span class="icon">📋</span> Locações</a>
+    <a href="#" class="nav-item"><span class="icon">💳</span> Financeiro</a>
+    <a href="#" class="nav-item"><span class="icon">🔧</span> Manutenção</a>
+    <div class="sidebar-footer">DriveMax v2.1 · 2025</div>
+  </aside>
 
-<main>
-  <div class="page-header">
-    <h1 class="page-title">Clientes</h1>
-    <p class="page-sub">Base de clientes · Consumo, faturamento e perfil</p>
-  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Clientes</span>
+        <span class="topbar-sub">Base de clientes · Consumo, faturamento e perfil</span>
+      </div>
+      <div class="topbar-right">
+        <span class="badge-period">👤 27 clientes cadastrados</span>
+      </div>
+    </div>
 
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Total de Clientes</div>
-      <div class="kpi-value" style="color:var(--blue)">27</div>
-      <div class="kpi-note">com dados identificados</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Maior Consumo (KM)</div>
-      <div class="kpi-value" style="color:var(--amber)">9.874</div>
-      <div class="kpi-note">Daniele · Barueri</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Maior Faturamento</div>
-      <div class="kpi-value" style="color:var(--green)">R$19.748</div>
-      <div class="kpi-note">Daniele · Barueri</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Cidade Destaque</div>
-      <div class="kpi-value" style="color:var(--purple);font-size:18px;margin-top:2px">Barueri</div>
-      <div class="kpi-note">R$ 36.826 em receita</div>
-    </div>
-  </div>
+    <div class="content">
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-navy"><div class="kpi-top"><div><div class="kpi-label">Total de Clientes</div><div class="kpi-value">27</div><div class="kpi-note">com dados identificados</div></div><div class="kpi-icon">👥</div></div></div>
+        <div class="kpi-card kpi-gold"><div class="kpi-top"><div><div class="kpi-label">Maior Consumo</div><div class="kpi-value">9.874</div><div class="kpi-note">Daniele · Barueri</div></div><div class="kpi-icon">🏆</div></div></div>
+        <div class="kpi-card kpi-teal"><div class="kpi-top"><div><div class="kpi-label">Maior Faturamento</div><div class="kpi-value">R$19.748</div><div class="kpi-note">Daniele · Barueri</div></div><div class="kpi-icon">💰</div></div></div>
+        <div class="kpi-card kpi-sage"><div class="kpi-top"><div><div class="kpi-label">Cidade Destaque</div><div class="kpi-value">Barueri</div><div class="kpi-note">R$ 36.826 em receita</div></div><div class="kpi-icon">📍</div></div></div>
+      </div>
 
-  <!-- Charts -->
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Clientes por Cidade</div>
-      <div class="card-sub">Quantidade de clientes por localização</div>
-      <canvas id="chartCidadeCount" height="200"></canvas>
-    </div>
-    <div class="card">
-      <div class="card-title">Consumo por Cliente (Top 10)</div>
-      <div class="card-sub">KM percorrido pelos maiores consumidores</div>
-      <canvas id="chartTopKm" height="200"></canvas>
-    </div>
-  </div>
+      <div class="stat-pills">
+        <div class="stat-pill"><div class="pill-dot" style="background:#059669"></div> 21 clientes ativos</div>
+        <div class="stat-pill"><div class="pill-dot" style="background:#dc2626"></div> 6 clientes inativos</div>
+        <div class="stat-pill"><div class="pill-dot" style="background:#c8943a"></div> Daniele lidera faturamento</div>
+        <div class="stat-pill"><div class="pill-dot" style="background:#0e7490"></div> Barueri concentra maior receita</div>
+      </div>
 
-  <!-- Table: ranking clientes -->
-  <div class="table-wrap">
-    <div class="table-top">
-      <div class="card-title">Ranking de Clientes por Faturamento</div>
-      <div class="card-sub" style="margin-bottom:0">Clientes ordenados pelo valor gerado à locadora</div>
+      <div class="grid-2">
+        <div class="card"><div class="card-header"><div class="card-title">Clientes por Cidade</div><div class="card-sub">Quantidade de clientes por localização</div></div><canvas id="chartCidadeCount" height="210"></canvas></div>
+        <div class="card"><div class="card-header"><div class="card-title">Consumo por Cliente — Top 10</div><div class="card-sub">KM percorrido pelos maiores consumidores</div></div><canvas id="chartTopKm" height="210"></canvas></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="card-header"><div class="card-title">Faturamento por Cidade</div><div class="card-sub">Receita acumulada por localização</div></div><canvas id="chartFatCidade" height="210"></canvas></div>
+        <div class="card"><div class="card-header"><div class="card-title">Status dos Clientes</div><div class="card-sub">Clientes ativos vs inativos</div></div><canvas id="chartStatus" height="210"></canvas></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <div><div class="card-title">Ranking de Clientes por Faturamento</div><div class="card-sub" style="margin:0">Clientes ordenados pelo valor gerado à locadora</div></div>
+          <span class="table-count">27 clientes</span>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Cliente</th><th>Cidade</th><th>Cargo</th><th>Salário</th><th>KM Percorrido</th><th>Faturamento</th><th>Status</th></tr></thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Cliente</th>
-          <th>Cidade</th>
-          <th>Cargo</th>
-          <th>Salário</th>
-          <th>KM Percorrido</th>
-          <th>Faturamento</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
   </div>
-</main>
+</div>
 
 <script>
-Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.font.size = 12;
-Chart.defaults.color = '#6b7280';
-const grid = 'rgba(0,0,0,0.05)';
-const colors = ['#2563eb','#7c3aed','#059669','#0891b2','#d97706','#dc2626','#4f46e5','#0d9488','#b45309','#9333ea'];
+Chart.defaults.color = '#6b7585';
+
+const datalabels = {
+  id: 'datalabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden) return;
+      meta.data.forEach((bar, j) => {
+        const val = dataset.data[j];
+        if (!val) return;
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px DM Sans';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const label = dataset.labelFormatter ? dataset.labelFormatter(val) : val.toLocaleString('pt-BR');
+        if (chart.config.options.indexAxis === 'y') {
+          const x = bar.x - (bar.x - bar.base)/2;
+          if (bar.x - bar.base > 55) ctx.fillText(label, x, bar.y);
+        } else {
+          const y = bar.y + (bar.base - bar.y)/2;
+          if (bar.base - bar.y > 28) ctx.fillText(label, bar.x, y);
+        }
+        ctx.restore();
+      });
+    });
+  }
+};
+Chart.register(datalabels);
+
+const grid = 'rgba(0,0,0,0.04)';
+const colors = ['#0e7490','#7c3aed','#92400e','#0d1b2a','#c8943a','#2d7a5e','#0891b2','#dc2626'];
 
 const clientes = [
   {nome:'Juliana Silva',cidade:'Osasco',cargo:'Analista Fiscal',salario:8000,km:489,fat:978,status:1},
@@ -214,82 +255,58 @@ const clientes = [
   {nome:'Vanessa',cidade:'Barueri',cargo:'—',salario:null,km:222,fat:444,status:1},
 ];
 
-// Chart 1: por cidade
-const cidCount = {};
-clientes.forEach(c=>{ cidCount[c.cidade]=(cidCount[c.cidade]||0)+1; });
+const byCidade = (field) => clientes.reduce((acc,c)=>{acc[c.cidade]=(acc[c.cidade]||0)+c[field];return acc;},{});
+const cidCount = byCidade('status');
+clientes.forEach(c=>{ if(!(c.cidade in cidCount)) cidCount[c.cidade]=0; });
+const countAll = clientes.reduce((acc,c)=>{acc[c.cidade]=(acc[c.cidade]||0)+1; return acc;},{});
 
 new Chart(document.getElementById('chartCidadeCount'),{
   type:'bar',
-  data:{
-    labels:Object.keys(cidCount),
-    datasets:[{data:Object.values(cidCount),backgroundColor:['#2563eb','#7c3aed','#059669'],borderRadius:8,borderSkipped:false}]
-  },
-  options:{
-    responsive:true,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' clientes'}}},
-    scales:{
-      x:{grid:{display:false},ticks:{color:'#374151',font:{weight:'600'}}},
-      y:{grid:{color:grid},ticks:{stepSize:2}}
-    }
-  }
+  data:{labels:Object.keys(countAll),datasets:[{data:Object.values(countAll),backgroundColor:['#92400e','#0e7490','#7c3aed'],borderRadius:8,borderSkipped:false,labelFormatter:v=>v+' clientes'}]},
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw+' clientes'}}},scales:{x:{grid:{display:false},ticks:{font:{weight:'600'}}},y:{grid:{color:grid},ticks:{stepSize:2}}}}
 });
 
-// Chart 2: top 10 km
 const top10=[...clientes].sort((a,b)=>b.km-a.km).slice(0,10);
-
 new Chart(document.getElementById('chartTopKm'),{
   type:'bar',
-  data:{
-    labels:top10.map(c=>c.nome),
-    datasets:[{data:top10.map(c=>c.km),backgroundColor:colors,borderRadius:7,borderSkipped:false}]
-  },
-  options:{
-    indexAxis:'y',responsive:true,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.toLocaleString('pt-BR')+' km'}}},
-    scales:{
-      x:{grid:{color:grid},ticks:{callback:v=>v.toLocaleString('pt-BR')}},
-      y:{grid:{display:false},ticks:{font:{size:11}}}
-    }
-  }
+  data:{labels:top10.map(c=>c.nome),datasets:[{data:top10.map(c=>c.km),backgroundColor:colors,borderRadius:7,borderSkipped:false,labelFormatter:v=>v.toLocaleString('pt-BR')+' km'}]},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString('pt-BR')+' km'}}},scales:{x:{grid:{color:grid},ticks:{callback:v=>v.toLocaleString('pt-BR')}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
 });
 
-// Table
+const fatCidade = byCidade('fat');
+new Chart(document.getElementById('chartFatCidade'),{
+  type:'bar',
+  data:{labels:Object.keys(fatCidade),datasets:[{data:Object.values(fatCidade),backgroundColor:['#92400e','#0e7490','#7c3aed'],borderRadius:8,borderSkipped:false,labelFormatter:v=>'R$'+(v/1000).toFixed(0)+'k'}]},
+  options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{display:false},ticks:{font:{weight:'600'}}},y:{grid:{color:grid},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}
+});
+
+const ativos = clientes.filter(c=>c.status===1).length;
+const inativos = clientes.length - ativos;
+new Chart(document.getElementById('chartStatus'),{
+  type:'doughnut',
+  data:{labels:[`Ativos (${ativos})`,`Inativos (${inativos})`],datasets:[{data:[ativos,inativos],backgroundColor:['#059669','#dc2626'],borderWidth:3,borderColor:'#fff',hoverOffset:6}]},
+  options:{cutout:'68%',plugins:{legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:10,font:{size:12}}},tooltip:{callbacks:{label:c=>' '+c.label+': '+c.raw+' clientes'}}}}
+});
+
 const sorted=[...clientes].sort((a,b)=>b.fat-a.fat);
 const maxFat=sorted[0].fat, maxKm=Math.max(...clientes.map(c=>c.km));
 const tbody=document.getElementById('tableBody');
-
-const cidClass={Osasco:'cidade-osasco','São Paulo':'cidade-sp',Barueri:'cidade-barueri'};
+const cityClass={Osasco:'city-osasco','São Paulo':'city-sp',Barueri:'city-barueri'};
+const avatarColors=['#0e7490','#7c3aed','#92400e','#0d1b2a','#c8943a','#2d7a5e'];
 
 sorted.forEach((c,i)=>{
   const rankClass=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
   const badge=c.status===1?'<span class="badge badge-green">Ativo</span>':'<span class="badge badge-red">Inativo</span>';
   const initials=c.nome.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-  const avatarColor=['#2563eb','#7c3aed','#059669','#0891b2','#d97706','#dc2626'][i%6];
-  const cc=cidClass[c.cidade]||'cidade-osasco';
-
+  const cc=cityClass[c.cidade]||'city-osasco';
   tbody.innerHTML+=`<tr>
     <td><span class="rank ${rankClass}">${i+1}</span></td>
-    <td>
-      <div class="name-cell">
-        <span class="avatar" style="background:${avatarColor}">${initials}</span>
-        <span style="font-weight:600">${c.nome}</span>
-      </div>
-    </td>
-    <td><span class="cidade-tag ${cc}">${c.cidade}</span></td>
+    <td><div class="name-cell"><span class="avatar" style="background:${avatarColors[i%avatarColors.length]}">${initials}</span><span style="font-weight:600">${c.nome}</span></div></td>
+    <td><span class="city-tag ${cc}">${c.cidade}</span></td>
     <td style="color:var(--muted);font-size:12px">${c.cargo}</td>
     <td style="font-size:13px">${c.salario?'R$ '+c.salario.toLocaleString('pt-BR'):'—'}</td>
-    <td>
-      <div class="bar-cell">
-        <span style="font-size:13px;font-weight:500;min-width:46px">${c.km.toLocaleString('pt-BR')}</span>
-        <div class="mini-bar"><div class="mini-fill-blue" style="width:${Math.round((c.km/maxKm)*100)}%"></div></div>
-      </div>
-    </td>
-    <td>
-      <div class="bar-cell">
-        <span style="font-size:13px;font-weight:600;color:var(--blue);min-width:62px">R$${c.fat.toLocaleString('pt-BR')}</span>
-        <div class="mini-bar"><div class="mini-fill-green" style="width:${Math.round((c.fat/maxFat)*100)}%"></div></div>
-      </div>
-    </td>
+    <td><div class="bar-cell"><span style="font-size:13px;font-weight:600;min-width:54px">${c.km.toLocaleString('pt-BR')}</span><div class="mini-bar"><div class="mini-fill" style="width:${Math.round((c.km/maxKm)*100)}%;background:#0e7490"></div></div></div></td>
+    <td><div class="bar-cell"><span style="font-size:13px;font-weight:700;color:#0e7490;min-width:72px">R$${c.fat.toLocaleString('pt-BR')}</span><div class="mini-bar"><div class="mini-fill" style="width:${Math.round((c.fat/maxFat)*100)}%;background:#2d7a5e"></div></div></div></td>
     <td>${badge}</td>
   </tr>`;
 });
